@@ -72,7 +72,6 @@ ActsAsForm = function(templateName, options) {
     //
     // which is what you should get out of validatedCollection.errors(obj)
     onError: function(errors) {
-      console.log('recieived errors', errors)
       Session.set(errorsVarName, errors);
       Session.set(submittingVarName, false);
       
