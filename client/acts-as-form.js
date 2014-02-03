@@ -9,13 +9,18 @@
 // NOTE: if you want a destroyed callback on your template,
 // you must add it BEFORE mixin this in.
 
-ActsAsForm = function(templateName, collection, callbacks) {
+ActsAsForm = function(templateName, options) {
   // XXX: note: you shouldn't ever be accessing this in the session!
   //   we could migrate this data ourselves (it might even be a good idea)
   var dataVarName = '__' + templateName + '__state__';
   var submittingVarName = '__' + templateName + '__submitting__';
   var errorsVarName = '__' + templateName + '__errors__';
-  callbacks = callbacks || {};
+  
+  options = _.extend({}, {
+    autoUpdate: false,
+    collection: undefined,
+    callbacks: {}
+  }, options);
   
   var fns = {
     state: function(baseRecord) {
@@ -24,8 +29,8 @@ ActsAsForm = function(templateName, collection, callbacks) {
       if (! record)
         Session.set(dataVarName, record = baseRecord);
       
-      if (collection)
-        record = collection._transform(record);
+      if (options.collection)
+        record = options.collection._transform(record);
       
       return record;
     },
@@ -43,12 +48,17 @@ ActsAsForm = function(templateName, collection, callbacks) {
       // flushing means there's no real inefficiency
       Session.set(dataVarName, state);
       
-      callbacks.update && callbacks.update.call(state, name, value, this);
+      options.callbacks.update 
+        && options.callbacks.update.call(state, name, value, this);
     },
     
     clearState: function() {
       Session.set(dataVarName, null);
       Session.set(submittingVarName, null);
+      Session.set(errorsVarName, null);
+    },
+    
+    clearErrors: function() {
       Session.set(errorsVarName, null);
     },
     
@@ -132,7 +142,24 @@ ActsAsForm = function(templateName, collection, callbacks) {
         var error = '<span class="error">' + error + '</span>';
         return new Handlebars.SafeString(label + error + '</label>');
       }
-    }
+    },
+    titleOrError: function(name, title) {
+      var errors = Session.get(errorsVarName);
+      var error = errors && errors[name];
+
+      if (error)
+        return new Handlebars.SafeString(error);
+      else
+        return title;
+    },
+    //bootstrap uses this css class
+    hasError: function(name) {
+      var errors = Session.get(errorsVarName);
+      var error = errors && errors[name];
+
+      if (error)
+        return 'has-error';
+    },
   });
   
   
@@ -153,13 +180,7 @@ ActsAsForm = function(templateName, collection, callbacks) {
     elementHandler(e.target, template);
   }
   
-  templ.events({
-    'change [name]': handler,
-    
-    // XXX: still need to investigate further into alternatives to
-    // the debounce here
-    'keyup [name]': _.debounce(handler, 500),
-    
+  var events = {
     // when the form submits, make sure we read every value, just in
     // case one of the above hasn't fired yet.
     'submit': function(e, template) {
@@ -172,5 +193,24 @@ ActsAsForm = function(templateName, collection, callbacks) {
         _.setDottedProperty(data, this.name, value);
       });
     }
-  })
+  };
+
+  // XXX: This seems buggy when used with bootstrap. Make it opt-in
+  if (options.autoUpdate) {
+    _.extend(events, {
+      'change [name]': handler,
+    
+      // XXX: still need to investigate further into alternatives to
+      // the debounce here
+      'keyup [name]': _.debounce(handler, 500),
+    });
+  }
+  
+  templ.events(events);
+
+  // XXX: hook in saving state when Hot Code Reload happens
+  // Meteor._reload.onMigrate('ActsAsForm', function() {
+  //   console.log('HCRing!!!');
+  //   return [true]; //ok to migrate
+  // });
 }
