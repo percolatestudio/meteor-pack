@@ -18,6 +18,7 @@ ActsAsForm = function(templateName, options) {
   
   options = _.extend({}, {
     autoUpdate: false,
+    clearStateOnDestroy: true,
     collection: undefined,
     callbacks: {}
   }, options);
@@ -106,7 +107,9 @@ ActsAsForm = function(templateName, options) {
   
   var oldDestroyed = templ.destroyed;
   templ.destroyed = function() {
-    this.clearState();
+    if (options.clearStateOnDestroy)
+      this.clearState();
+
     oldDestroyed && oldDestroyed.call(this);
   }
   
