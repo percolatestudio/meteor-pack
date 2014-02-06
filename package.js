@@ -3,15 +3,20 @@ Package.describe({
 });
 
 Package.on_use(function (api) {
-  api.use('underscore', ['client', 'server']);
+  api.use(['underscore', 'google'], ['client', 'server']);
   
   api.add_files([
     'underscore-extensions.js'
   ], ['client', 'server']);
 
   api.add_files([
-    'client/acts-as-form.js'
+    'client/acts-as-form.js',
+    'client/oauth-extensions.js'
   ], 'client');
 
-  api.export('ActsAsForm', 'client');
+  api.add_files([
+    'server/oauth-extensions.js'
+  ], 'server');
+
+  api.export(['ActsAsForm', 'OAuthExtensions'], 'client');
 });
