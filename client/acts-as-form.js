@@ -170,6 +170,17 @@ ActsAsForm = function(templateName, options) {
       if (error)
         return 'error';
     },
+    //return 'success' if name field has no error and field is not empty
+    successClass: function(name) {
+      var errors = Session.get(errorsVarName);
+      var datas = Session.get(dataVarName);
+
+      var error = errors && errors[name];
+      var data = datas && datas[name];
+
+      if (! error && data)
+        return 'success';
+    }
   });
   
   
