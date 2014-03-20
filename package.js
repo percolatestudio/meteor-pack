@@ -3,7 +3,7 @@ Package.describe({
 });
 
 Package.on_use(function (api) {
-  api.use(['underscore', 'google'], ['client', 'server']);
+  api.use(['underscore', 'google', 'accounts-base'], ['client', 'server']);
   
   api.add_files([
     'underscore-extensions.js'
@@ -20,3 +20,9 @@ Package.on_use(function (api) {
 
   api.export(['ActsAsForm', 'OAuthExtensions'], 'client');
 });
+
+Package.on_test(function(api) {
+  api.use(['meteor-pack', 'tinytest']);
+  
+  api.add_files('tests/underscore-extensions.js');
+})

@@ -23,5 +23,16 @@ _.mixin({
       return (node[part] = node[part] || {});
     }, record);
     leaf[attr] = value;
+  },
+  
+  // XXX: TODO -- should take a list of extensions
+  extendDotted: function(obj, extensions) {
+    _.each(extensions, function(value, key) {
+      
+      // XXX: TODO -- should probably check if value is itself an object
+      _.setDottedProperty(obj, key, value);
+    });
+    
+    return obj;
   }
 });
