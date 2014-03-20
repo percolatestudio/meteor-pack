@@ -162,6 +162,14 @@ ActsAsForm = function(templateName, options) {
       if (error)
         return 'has-error';
     },
+    //return 'error' if name field has an error
+    errorClass: function(name) {
+      var errors = Session.get(errorsVarName);
+      var error = errors && errors[name];
+
+      if (error)
+        return 'error';
+    },
   });
   
   
