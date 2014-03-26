@@ -17,7 +17,6 @@ ActsAsForm = function(templateName, options) {
   var errorsVarName = '__' + templateName + '__errors__';
   
   options = _.extend({}, {
-    autoUpdate: false,
     clearStateOnDestroy: true,
     collection: undefined,
     callbacks: {}
@@ -216,16 +215,13 @@ ActsAsForm = function(templateName, options) {
     }
   };
 
-  // XXX: This seems buggy when used with bootstrap. Make it opt-in
-  if (options.autoUpdate) {
-    _.extend(events, {
-      'change [name]': handler,
-    
-      // XXX: still need to investigate further into alternatives to
-      // the debounce here
-      'keyup [name]': _.debounce(handler, 500),
-    });
-  }
+  _.extend(events, {
+    'change [name]': handler,
+  
+    // XXX: still need to investigate further into alternatives to
+    // the debounce here
+    'keyup [name]': _.debounce(handler, 500),
+  });
   
   templ.events(events);
 
