@@ -203,7 +203,7 @@ ActsAsForm = function(templateName, options) {
   var events = {
     // when the form submits, make sure we read every value, just in
     // case one of the above hasn't fired yet.
-    'submit': function(e, template) {
+    'submit, click .submit': function(e, template) {
       var data = this;
       $(e.target).find('input,select,textarea').each(function() {
         var value = elementHandler(this, template);
