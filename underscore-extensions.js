@@ -34,5 +34,15 @@ _.mixin({
     });
     
     return obj;
+  },
+  
+  pickDotted: function(obj /*, *keys */) {
+    var keys = Array.prototype.slice.call(arguments, 1);
+    var result = {};
+    _.each(keys, function(key) {
+      result[key] = _.dottedProperty(obj, key);
+    });
+    
+    return result;
   }
 });

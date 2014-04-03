@@ -7,3 +7,10 @@ Tinytest.add('Pack - Underscore Extensions - extendDotted', function(test) {
 
   test.equal(copy.foo.bar, 'baz');
 });
+
+Tinytest.add('Pack - Underscore Extensions - pickDotted', function(test) {
+  var obj = {top: 'level', profile: {name: 'tom', foo: 'bar'}};
+  
+  var picked = _.pickDotted(obj, 'profile.name', 'top');
+  test.equal(picked, {'profile.name': 'tom', top: 'level'});
+});
