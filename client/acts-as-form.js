@@ -29,8 +29,8 @@ ActsAsForm = function(templateName, options) {
       if (! record)
         Session.set(dataVarName, record = baseRecord);
       
-      if (options.collection)
-        record = options.collection._transform(record);
+      if (options.collection && options.collection.init)
+        record = options.collection.init(record);
       
       return record;
     },
