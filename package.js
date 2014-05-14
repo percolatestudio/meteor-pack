@@ -4,6 +4,7 @@ Package.describe({
 
 Package.on_use(function (api) {
   api.use(['underscore', 'google', 'accounts-base'], ['client', 'server']);
+  api.use('moment', 'client');
   
   api.add_files([
     'underscore-extensions.js'

@@ -1,0 +1,9 @@
+<template name="flashes">
+  {{#if flashes.count}}
+    <ul class="flashes">
+      {{#each flashes}}
+        <li class="{{type}}">{{text}}</li>
+      {{/each}}
+    </ul>
+  {{/if}}
+</template>
