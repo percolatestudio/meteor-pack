@@ -1,7 +1,7 @@
 <template name="flashes">
-  {{#if flashes.count}}
+  {{#if allFlashes.count}}
     <ul class="flashes">
-      {{#each flashes}}
+      {{#each allFlashes}}
         <li class="{{type}}">{{text}}</li>
       {{/each}}
     </ul>

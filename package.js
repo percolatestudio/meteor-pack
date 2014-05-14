@@ -4,7 +4,7 @@ Package.describe({
 
 Package.on_use(function (api) {
   api.use(['underscore', 'google', 'accounts-base'], ['client', 'server']);
-  api.use('moment', 'client');
+  api.use(['ui', 'templating', 'moment', 'iron-router'], 'client');
   
   api.add_files([
     'underscore-extensions.js'
@@ -12,14 +12,16 @@ Package.on_use(function (api) {
 
   api.add_files([
     'client/acts-as-form.js',
-    'client/oauth-extensions.js'
+    'client/oauth-extensions.js',
+    'client/flashes.js',
+    'client/flashes.html'
   ], 'client');
 
   api.add_files([
     'server/oauth-extensions.js'
   ], 'server');
 
-  api.export(['ActsAsForm', 'OAuthExtensions'], 'client');
+  api.export(['ActsAsForm', 'OAuthExtensions', 'Flashes'], 'client');
 });
 
 Package.on_test(function(api) {

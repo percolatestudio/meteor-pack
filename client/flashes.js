@@ -21,7 +21,11 @@ Flashes.clearSeen = function(before) {
   Flashes.remove({seenAt: {$lt: before}});
 }
 
-Handlebars.registerHelper('flashes', function() {
+Flashes.clear = function() {
+  Flashes.remove({});
+}
+
+Handlebars.registerHelper('allFlashes', function() {
   Flashes.markSeen();
   
   // XXX: hack to make sure this re-draws whenever flashes are added
