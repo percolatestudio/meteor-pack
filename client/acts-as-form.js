@@ -19,7 +19,8 @@ ActsAsForm = function(templateName, options) {
   options = _.extend({}, {
     clearStateOnDestroy: true,
     collection: undefined,
-    callbacks: {}
+    callbacks: {},
+    formSelector: 'form' //default css selector for the form
   }, options);
   
   var fns = {
@@ -199,30 +200,28 @@ ActsAsForm = function(templateName, options) {
     // DON'T return this (as it could be false and cancel the event)
     elementHandler(e.target, template);
   }
-  
-  var events = {
-    // when the form submits, make sure we read every value, just in
-    // case one of the above hasn't fired yet.
-    'submit, click .submit': function(e, template) {
-      var data = this;
-      $(e.target).find('input,select,textarea').each(function() {
-        var value = elementHandler(this, template);
-        
-        // also instantly update the data context, in case the real 
-        // event hander is using it
-        _.setDottedProperty(data, this.name, value);
-      });
-    }
-  };
 
-  _.extend(events, {
-    'change [name]': handler,
+  var events = {};
+
+  // when the form submits, make sure we read every value, just in
+  // case one of the above hasn't fired yet.
+  events['submit ' + options.formSelector] =  function(e, template) {
+    var data = this;
+    $(e.target).find('input,select,textarea').each(function() {
+      var value = elementHandler(this, template);
+      
+      // also instantly update the data context, in case the real 
+      // event hander is using it
+      _.setDottedProperty(data, this.name, value);
+    });
+  }
+
+  events['change ' + options.formSelector + ' [name]'] = handler;
   
-    // XXX: still need to investigate further into alternatives to
-    // the debounce here
-    'keyup [name]': _.debounce(handler, 500),
-  });
-  
+  // XXX: still need to investigate further into alternatives to
+  // the debounce here
+  events['keyup ' + options.formSelector + ' [name]']= _.debounce(handler, 500);
+
   templ.events(events);
 
   // XXX: hook in saving state when Hot Code Reload happens
