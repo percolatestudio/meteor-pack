@@ -12,8 +12,9 @@ OAuthExtensions = {
         if (typeof cb !== 'undefined')
           cb(tokenOrError);
       } else {
+        var secret = OAuth._retrieveCredentialSecret(tokenOrError);
         Meteor.call('OAuthExtensions.updateAccountWithGoogle', tokenOrError, 
-          cb);
+          secret, cb);
       }
     });
   },

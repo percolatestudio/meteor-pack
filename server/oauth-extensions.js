@@ -9,8 +9,10 @@ Meteor.users.allow({update: function (userId, doc, fieldNames, modifier) {
 }});
 
 Meteor.methods({
-  'OAuthExtensions.updateAccountWithGoogle': function(token) {
-    var result = Google.retrieveCredential(token);
+  'OAuthExtensions.updateAccountWithGoogle': function(token, secret) {
+    // this is what it should be, see https://github.com/meteor/meteor/issues/2118
+    // var result = Google.retrieveCredential(token, secret);
+    var result = OAuth.retrieveCredential(token, secret);
 
     if (result && result.serviceData) {
       // Remove the id so multiple accounts can connect the same google account
