@@ -1,10 +1,11 @@
 Package.describe({
-  summary: "Random code/tools we use across our Meteor projects (at Percolate Studio)."
+  summary: "Random code/tools we use across our Meteor projects (at Percolate Studio).",
+  version: "0.0.0"
 });
 
 Package.on_use(function (api) {
   api.use(['underscore', 'google', 'accounts-base', 'oauth'], ['client', 'server']);
-  api.use(['ui', 'templating', 'moment', 'iron-router', 'oauth'], 'client');
+  api.use(['ui', 'templating', 'mrt:moment', 'cmather:iron-router', 'oauth'], 'client');
   
   api.add_files([
     'underscore-extensions.js'
