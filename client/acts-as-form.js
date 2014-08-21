@@ -9,6 +9,23 @@
 // NOTE: if you want a destroyed callback on your template,
 // you must add it BEFORE mixin this in.
 
+var elementHandler = function(element, template) {
+  var value = element.value;
+  var $element = $(element);
+  
+  if ($element.is('[type=checkbox]'))
+    value = $element.is(':checked');
+  
+  template.updateState(element.name, value);
+  
+  return value;
+};
+
+var handler = function(e, template) {
+  // DON'T return this (as it could be false and cancel the event)
+  elementHandler(e.target, template);
+};
+
 ActsAsForm = function(templateName, options) {
   // XXX: note: you shouldn't ever be accessing this in the session!
   //   we could migrate this data ourselves (it might even be a good idea)
@@ -22,7 +39,7 @@ ActsAsForm = function(templateName, options) {
     callbacks: {},
     formSelector: 'form' //default css selector for the form
   }, options);
-  
+
   var fns = {
     state: function(baseRecord) {
       var record = Session.get(dataVarName);
@@ -34,6 +51,19 @@ ActsAsForm = function(templateName, options) {
         record = options.collection.init(record);
       
       return record;
+    },
+
+    getAndSetState: function() {
+      var self = this;
+      var data = self.data || {};
+
+      self.$('input,select,textarea').each(function() {
+        var value = elementHandler(this, self);
+        
+        // also instantly update the data context, in case the real 
+        // event hander is using it
+        _.setDottedProperty(data, this.name, value);
+      });
     },
     
     updateState: function(name, value) {
@@ -88,7 +118,7 @@ ActsAsForm = function(templateName, options) {
     submitting: function(value) {
       Session.set(submittingVarName, value);
     }
-  }
+  };
   
   
   var templ = Template[templateName];
@@ -103,7 +133,7 @@ ActsAsForm = function(templateName, options) {
     
     _.each(fns, function(f, key) {self[key] = f});
     oldCreated && oldCreated.call(this);
-  }
+  };
   
   var oldDestroyed = templ.destroyed;
   templ.destroyed = function() {
@@ -111,7 +141,21 @@ ActsAsForm = function(templateName, options) {
       this.clearState();
 
     oldDestroyed && oldDestroyed.call(this);
-  }
+  };
+
+  var oldRendered = templ.rendered;
+  templ.rendered = function() {
+    var self = this;
+
+    // This appears to be the best solution to catch an autofill
+    // as browsers are inconsistent with firing a changed event.
+    // And also, Meteor's changed event is never fired by autofilled data. Bug?
+    Meteor.setTimeout(function() {
+      self.getAndSetState();
+    }, 200);
+
+    oldRendered && oldRendered.call(self);
+  };
   
   
   // OK, first up, when we are rendered, we can expect the session var to be
@@ -141,7 +185,7 @@ ActsAsForm = function(templateName, options) {
       
       if (error) {
         var label = '<label for="' + name + '">' + title;
-        var error = '<span class="error">' + error + '</span>';
+        error = '<span class="error">' + error + '</span>';
         return new Handlebars.SafeString(label + error + '</label>');
       }
     },
@@ -183,38 +227,13 @@ ActsAsForm = function(templateName, options) {
     }
   });
   
-  
-  var elementHandler = function(element, template) {
-    var value = element.value;
-    var $element = $(element);
-    
-    if ($element.is('[type=checkbox]'))
-      value = $element.is(':checked');
-    
-    template.updateState(element.name, value);
-    
-    return value;
-  }
-  
-  var handler = function(e, template) {
-    // DON'T return this (as it could be false and cancel the event)
-    elementHandler(e.target, template);
-  }
-
   var events = {};
 
   // when the form submits, make sure we read every value, just in
   // case one of the above hasn't fired yet.
-  events['submit ' + options.formSelector] =  function(e, template) {
-    var data = this;
-    $(e.target).find('input,select,textarea').each(function() {
-      var value = elementHandler(this, template);
-      
-      // also instantly update the data context, in case the real 
-      // event hander is using it
-      _.setDottedProperty(data, this.name, value);
-    });
-  }
+  events['submit ' + options.formSelector] = function(event, template) {
+    template.getAndSetState();
+  };
 
   events['change ' + options.formSelector + ' [name]'] = handler;
   
@@ -229,4 +248,4 @@ ActsAsForm = function(templateName, options) {
   //   console.log('HCRing!!!');
   //   return [true]; //ok to migrate
   // });
-}
+};
