@@ -236,6 +236,9 @@ ActsAsForm = function(templateName, options) {
   };
 
   events['change ' + options.formSelector + ' [name]'] = handler;
+  // Also catch the blur event, which will help with autofilled data
+  // as for some reason Meteor's 'change' event doesn't fire
+  events['blur ' + options.formSelector + ' [name]'] = handler;
   
   // XXX: still need to investigate further into alternatives to
   // the debounce here
