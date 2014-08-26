@@ -58,6 +58,9 @@ ActsAsForm = function(templateName, options) {
       var data = self.data || {};
 
       self.$('input,select,textarea').each(function() {
+        // ignore elements that have no name
+        if (! this.name)
+          return;
         var value = elementHandler(this, self);
         
         // also instantly update the data context, in case the real 
