@@ -135,19 +135,8 @@ ActsAsForm = function(templateName, options) {
     oldCreated && oldCreated.call(this);
   };
   
-  var oldDestroyed = templ.destroyed;
-  templ.destroyed = function() {
-    if (options.clearStateOnDestroy)
-      this.clearState();
-
-    oldDestroyed && oldDestroyed.call(this);
-  };
-
   var timeout;
   var oldRendered = templ.rendered;
-  templ.destroyed = function() {
-    Meteor.clearTimeout(timeout);
-  };
   templ.rendered = function() {
     var self = this;
 
@@ -160,7 +149,17 @@ ActsAsForm = function(templateName, options) {
 
     oldRendered && oldRendered.call(self);
   };
-  
+
+  var oldDestroyed = templ.destroyed;
+  templ.destroyed = function() {
+    if (options.clearStateOnDestroy)
+      this.clearState();
+
+    // clear the timeout so we don't run getAndSetState()
+    Meteor.clearTimeout(timeout);
+
+    oldDestroyed && oldDestroyed.call(this);
+  };
   
   // OK, first up, when we are rendered, we can expect the session var to be
   // unset; UNLESS:
