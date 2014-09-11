@@ -143,14 +143,18 @@ ActsAsForm = function(templateName, options) {
     oldDestroyed && oldDestroyed.call(this);
   };
 
+  var timeout;
   var oldRendered = templ.rendered;
+  templ.destroyed = function() {
+    Meteor.clearTimeout(timeout);
+  };
   templ.rendered = function() {
     var self = this;
 
     // This appears to be the best solution to catch an autofill
     // as browsers are inconsistent with firing a changed event.
     // And also, Meteor's changed event is never fired by autofilled data. Bug?
-    Meteor.setTimeout(function() {
+    timeout = Meteor.setTimeout(function() {
       self.getAndSetState();
     }, 200);
 
