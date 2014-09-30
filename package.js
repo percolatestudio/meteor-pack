@@ -5,7 +5,8 @@ Package.describe({
 
 Package.on_use(function (api) {
   api.use(['underscore', 'google', 'accounts-base', 'oauth'], ['client', 'server']);
-  api.use(['ui', 'templating', 'mrt:moment', 'iron:router', 'oauth'], 'client');
+  api.use(['ui', 'templating', 'mrt:moment', 'oauth'], 'client');
+  api.use('iron:router', 'client', {weak: true});
   
   api.add_files([
     'underscore-extensions.js'

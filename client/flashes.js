@@ -34,7 +34,9 @@ Handlebars.registerHelper('allFlashes', function() {
   return Flashes.find();
 });
 
-Router.onAfterAction(function() {
-  var before = moment().subtract(2, 'seconds');
-  Flashes.clearSeen(before.toDate());
-});
+if (Package['iron:router']) {
+  Router.onAfterAction(function() {
+    var before = moment().subtract(2, 'seconds');
+    Flashes.clearSeen(before.toDate());
+  });
+}
